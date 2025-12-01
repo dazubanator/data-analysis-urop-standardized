@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Experiment Analysis V3 - Walkthrough</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: #333;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            color: #f5576c;
+            border-bottom: 4px solid #f5576c;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            color: #f093fb;
+            margin-top: 40px;
+            border-left: 5px solid #f093fb;
+            padding-left: 15px;
+        }
+
+        h3 {
+            color: #f5576c;
+            margin-top: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f5576c;
+            color: white;
+            font-weight: bold;
+        }
+
+        tr:hover {
+            background-color: #fff5f7;
+        }
+
+        .stats-box {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 5px solid #f5576c;
+        }
+
+        .stats-box p {
+            margin: 8px 0;
+            font-size: 16px;
+        }
+
+        .stats-box strong {
+            color: #f5576c;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            margin: 20px 0;
+            display: block;
+        }
+
+        .image-container {
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .image-caption {
+            font-style: italic;
+            color: #666;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        ul {
+            line-height: 1.8;
+        }
+
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 15px;
+            border-left: 4px solid #ffc107;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Experiment Analysis V3 - Walkthrough</h1>
+
+        <div class="highlight">
+            <strong>New in V3:</strong> Subject exclusion rule - subjects with more than 2 angle-invalidated trials are
+            completely removed from the dataset.
+        </div>
+
+        <h2>Overview</h2>
+        <p>Analysis V3 implements stricter quality control with subject-level exclusion:</p>
+        <ul>
+            <li><strong>Face ID Mapping</strong>: ID001 → ID017, ID022 → ID015</li>
+            <li><strong>Angle Transformation</strong>: Raw angles multiplied by -1 (Left tilt) or 1 (Right tilt) to get
+                end angles</li>
+            <li><strong>Angle Validation</strong>: End angles must be strictly between 3 and 40 degrees</li>
+            <li><strong>Subject Exclusion</strong>: Subjects with >2 angle-invalid trials are completely removed</li>
+            <li><strong>Pairing Logic</strong>: Trials paired by Face Side (Face Left/Tilt Left vs Face Left/Tilt Right)
+            </li>
+        </ul>
+
+        <h2>Results</h2>
+
+        <div class="stats-box">
+            <h3>Statistics</h3>
+            <p><strong>Initial Trials:</strong> 9,426</p>
+            <p><strong>Initial Subjects:</strong> 293</p>
+            <p><strong>Trials Invalidated (Angle Rule):</strong> 2,967</p>
+            <p><strong>Subjects Excluded (>2 invalid trials):</strong> 158</p>
+            <p><strong>Trials Removed (Subject Exclusion):</strong> 5,105</p>
+            <p><strong>Trials Invalidated (Balancing):</strong> 83</p>
+            <p><strong>Final Valid Trials:</strong> 4,152 (2,076 pairs)</p>
+            <p><strong>Final Subjects:</strong> 135</p>
+        </div>
+
+        <div class="stats-box">
+            <h3>Overall D-Value Analysis</h3>
+            <p><strong>Mean D:</strong> 0.1479°</p>
+            <p><strong>Standard Deviation:</strong> 5.5646°</p>
+            <p><strong>P-Value:</strong> 0.2261 (Not statistically significant)</p>
+        </div>
+
+        <h3>Statistics per Face ID</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Face ID</th>
+                    <th>Count</th>
+                    <th>Mean D</th>
+                    <th>Std</th>
+                    <th>SEM</th>
+                    <th>P-Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>ID015</strong></td>
+                    <td>1,039</td>
+                    <td>0.0780</td>
+                    <td>5.6600</td>
+                    <td>0.1756</td>
+                    <td>0.6572</td>
+                </tr>
+                <tr>
+                    <td><strong>ID017</strong></td>
+                    <td>515</td>
+                    <td>0.3981</td>
+                    <td>5.2844</td>
+                    <td>0.2329</td>
+                    <td>0.0880</td>
+                </tr>
+                <tr>
+                    <td><strong>ID030</strong></td>
+                    <td>522</td>
+                    <td>0.0402</td>
+                    <td>5.6450</td>
+                    <td>0.2471</td>
+                    <td>0.8707</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Visualizations</h2>
+
+        <h3>Filtering Pipeline</h3>
+        <div class="image-container">
+            <img src="output/filtering_pipeline.png" alt="Filtering Pipeline">
+            <p class="image-caption">Trial and subject filtering pipeline showing data reduction at each stage</p>
+        </div>
+
+        <h3>Distributions per Face ID</h3>
+        <p>For each Face ID, distributions show the Mean (Red dashed line), Null hypothesis (Black line), and
+            Significance Thresholds (Green=α 0.05, Orange=α 0.10).</p>
+
+        <h4>Face ID015</h4>
+        <div class="image-container">
+            <img src="output/distribution_ID015.png" alt="Distribution ID015">
+            <p class="image-caption">D-value distribution for Face ID015 (n=1,039, Mean=0.0780, p=0.6572)</p>
+        </div>
+
+        <h4>Face ID017</h4>
+        <div class="image-container">
+            <img src="output/distribution_ID017.png" alt="Distribution ID017">
+            <p class="image-caption">D-value distribution for Face ID017 (n=515, Mean=0.3981, p=0.0880) - Approaching
+                significance!</p>
+        </div>
+
+        <h4>Face ID030</h4>
+        <div class="image-container">
+            <img src="output/distribution_ID030.png" alt="Distribution ID030">
+            <p class="image-caption">D-value distribution for Face ID030 (n=522, Mean=0.0402, p=0.8707)</p>
+        </div>
+
+        <h2>Key Findings</h2>
+        <ul>
+            <li>Subject exclusion rule removed 158 subjects (54% of original subjects)</li>
+            <li>Final dataset: 135 subjects with high-quality data</li>
+            <li>Overall effect not significant (p=0.2261), but ID017 shows trend (p=0.0880)</li>
+            <li>Stricter quality control reduced noise in the data</li>
+        </ul>
+
+    </div>
+</body>
+
+</html>
