@@ -1,5 +1,47 @@
-/analyze_data_v2.py
-/create_summary_visualization_v2.py
-/output_v2
-/walkthrough_v2.html
-/walkthrough_v2.md
+# Generated/processed data
+data/processed/
+merged_experiments_cleaned_reproduced.csv
+
+# Results and outputs
+results/
+output_v3/
+*.png
+*.html
+
+# Legacy files (keep local, don't track)
+analysis_v3/
+implementation_plan.md
+reproduction_package.zip
+walkthrough_v3.html
+analyze_data_v2.py
+create_summary_visualization_v2.py
+output_v2/
+walkthrough_v2.html
+walkthrough_v2.md
+analyze_data_v3.py
+preprocess_data.py
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.ipynb_checkpoints/
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
