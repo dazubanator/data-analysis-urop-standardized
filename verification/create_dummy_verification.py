@@ -20,12 +20,14 @@ data = {
 
 df = pd.DataFrame(data)
 
-# Save to data/raw/
+# Save to verification/data/
 import os
-os.makedirs('data/raw', exist_ok=True)
-df.to_csv('data/raw/dummy_verification.csv', index=False)
+output_dir = os.path.join(os.path.dirname(__file__), 'verification', 'data')
+os.makedirs(output_dir, exist_ok=True)
+output_file_path = os.path.join(output_dir, 'dummy_verification.csv')
+df.to_csv(output_file_path, index=False)
 
-print("Dummy data created: data/raw/dummy_verification.csv")
+print(f"Dummy data created: {output_file_path}")
 print("\n" + "="*70)
 print("DUMMY DATA OVERVIEW")
 print("="*70)

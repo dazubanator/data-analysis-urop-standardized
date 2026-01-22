@@ -176,3 +176,10 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 .DS_Store
+
+# Project-specific temporary files
+actual_values.txt
+stats.txt
+verification_results.txt
+temp_stats*.txt
+
