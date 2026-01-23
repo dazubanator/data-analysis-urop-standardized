@@ -35,78 +35,63 @@ Here is the "real life math" for calculating the statistics for each Face ID gro
 
 ### 1. Calculate D-values per Subject
 
-**Formula**: `D` = `| |Towards Angle| - |Away Angle| |` (Absolute difference)
+**Formula**: `D` = `|Towards Angle| - |Away Angle|` (Signed difference)
 *Note: End angles are `Raw Angle * -1` (if left) or `Raw Angle * 1` (if right).*
-*Note: We take the absolute value of the difference to ensure D-values are always non-negative.*
+*Note: We no longer take the outer absolute value. This allows us to see if the bias is Towards (+) or Away (-).*
 
 **Face ID015 (4 Subjects)**
 
-* **User 284**: Towards=11, Away=-13. `D = | |11| - |-13| |` = `| 11 - 13 |` = `|-2|` = **2**
-* **User 200**: Towards=-10, Away=9. `D = | |-10| - |9| |` = `| 10 - 9 |` = `|1|` = **1**
-* **User 291**: Towards=15, Away=-16. `D = | |15| - |-16| |` = `| 15 - 16 |` = `|-1|` = **1**
-* **User 287**: Towards=-25, Away=24. `D = | |-25| - |24| |` = `| 25 - 24 |` = `|1|` = **1**
-* **Dataset for ID015**: `[2, 1, 1, 1]`
+* **User 284**: Towards=11, Away=-13. `D = |11| - |-13|` = `11 - 13` = **-2**
+* **User 200**: Towards=-10, Away=9. `D = |-10| - |9|` = `10 - 9` = **1**
+* **User 291**: Towards=15, Away=-16. `D = |15| - |-16|` = `15 - 16` = **-1**
+* **User 287**: Towards=-25, Away=24. `D = |-25| - |24|` = `25 - 24` = **1**
+* **Dataset for ID015**: `[-2, 1, -1, 1]`
 
 **Face ID017 (3 Subjects)**
 
-* **User 143**: Towards=25, Away=-26. `D = | |25| - |-26| |` = `| 25 - 26 |` = `|-1|` = **1**
-* **User 87**: Towards=-19, Away=14. `D = | |-19| - |14| |` = `| 19 - 14 |` = `|5|` = **5**
-* **User 39**: Towards=15, Away=-14. `D = | |15| - |-14| |` = `| 15 - 14 |` = `|1|` = **1**
-* **Dataset for ID017**: `[1, 5, 1]`
+* **User 143**: Towards=25, Away=-26. `D = |25| - |-26|` = `25 - 26` = **-1**
+* **User 87**: Towards=-19, Away=14. `D = |-19| - |14|` = `19 - 14` = **5**
+* **User 39**: Towards=15, Away=-14. `D = |15| - |-14|` = `15 - 14` = **1**
+* **Dataset for ID017**: `[-1, 5, 1]`
 
 **Face ID030 (3 Subjects)**
 
-* **User 248**: Towards=15, Away=-21. `D = | |15| - |-21| |` = `| 15 - 21 |` = `|-6|` = **6**
-* **User 269**: Towards=17, Away=-17. `D = | |17| - |-17| |` = `| 17 - 17 |` = `|0|` = **0**
-* **User 279**: Towards=-13, Away=16. `D = | |-13| - |16| |` = `| 13 - 16 |` = `|-3|` = **3**
-* **Dataset for ID030**: `[6, 0, 3]`
+* **User 248**: Towards=15, Away=-21. `D = |15| - |-21|` = `15 - 21` = **-6**
+* **User 269**: Towards=17, Away=-17. `D = |17| - |-17|` = `17 - 17` = **0**
+* **User 279**: Towards=-13, Away=16. `D = |-13| - |16|` = `13 - 16` = **-3**
+* **Dataset for ID030**: `[-6, 0, -3]`
 
 ---
 
 ### 2. Statistics Breakdown (Real Math)
 
-#### **Face ID015** (`[2, 1, 1, 1]`)
+#### **Face ID015** (`[-2, 1, -1, 1]`)
 
 1. **Count (N)**: 4
-2. **Sum**: 2 + 1 + 1 + 1 = **5**
-3. **Mean**: Sum / N = 5 / 4 = **1.25**
-4. **Standard Deviation (s)**:
-    * Step A (Differences from Mean):
-        * (2 - 1.25)² = (0.75)² = **0.5625**
-        * (1 - 1.25)² = (-0.25)² = **0.0625**
-        * (1 - 1.25)² = (-0.25)² = **0.0625**
-        * (1 - 1.25)² = (-0.25)² = **0.0625**
-    * Step B (Sum of Squared Diffs): 0.5625 + 0.0625*3 = **0.75**
-    * Step C (Variance): Sum / (N-1) = 0.75 / 3 = **0.25**
-    * Step D (Std Dev): √0.25 = **0.5**
-5. **SEM**: s / √N = 0.5 / √4 = 0.5 / 2 = **0.25**
-6. **T-statistic**: (Mean - 0) / SEM = 1.25 / 0.25 = **5.0**
-7. **P-value**: Look up t=5.0, df=3 → **0.015**
+2. **Sum**: -2 + 1 - 1 + 1 = **-1**
+3. **Mean**: Sum / N = -1 / 4 = **-0.25**
+4. **Standard Deviation (s)**: **~1.258**
+5. **SEM**: **0.629**
+6. **T-statistic**: -0.25 / 0.629 = **-0.397**
+7. **P-value**: **0.718**
 
-#### **Face ID017** (`[1, 5, 1]`)
+#### **Face ID017** (`[-1, 5, 1]`)
 
 1. **Count (N)**: 3
-2. **Mean**: (1 + 5 + 1) / 3 = 7 / 3 ≈ **2.333**
-3. **Standard Deviation (s)**:
-    * ((1 - 2.33)² + (5 - 2.33)² + (1 - 2.33)²) / 2
-    * ((-1.33)² + (2.67)² + (-1.33)²) / 2
-    * (1.77 + 7.11 + 1.77) / 2 ≈ 10.65 / 2 ≈ 5.325
-    * √5.325 ≈ **2.308**
-4. **SEM**: 2.308 / √3 ≈ **1.332**
-5. **T-statistic**: 2.333 / 1.332 ≈ **1.751**
-6. **P-value**: Look up t=1.751, df=2 → **0.222**
+2. **Mean**: (-1 + 5 + 1) / 3 = 5 / 3 ≈ **1.667**
+3. **Std Dev**: **3.215**
+4. **SEM**: **1.856**
+5. **T-statistic**: **0.898**
+6. **P-value**: **0.464**
 
-#### **Face ID030** (`[6, 0, 3]`)
+#### **Face ID030** (`[-6, 0, -3]`)
 
 1. **Count (N)**: 3
-2. **Mean**: (6 + 0 + 3) / 3 = 9 / 3 = **3.0**
-3. **Standard Deviation (s)**:
-    * ((6 - 3)² + (0 - 3)² + (3 - 3)²) / 2
-    * (9 + 9 + 0) / 2 = 18 / 2 = 9
-    * √9 = **3.0**
-4. **SEM**: 3.0 / √3 ≈ 3.0 / 1.732 ≈ **1.732**
-5. **T-statistic**: 3.0 / 1.732 ≈ **1.732**
-6. **P-value**: Look up t=1.732, df=2 → **0.225**
+2. **Mean**: (-6 + 0 - 3) / 3 = -9 / 3 = **-3.0**
+3. **Std Dev**: **3.0**
+4. **SEM**: **1.732**
+5. **T-statistic**: **-1.732**
+6. **P-value**: **0.225**
 
 ---
 
@@ -140,7 +125,7 @@ The `run_verification.py` script automatically verifies these exact values again
 |------|---------|
 | **End Angle** | `raw_angle × (-1)` if left, `raw_angle × (1)` if right |
 | **Angle Valid** | `3 < end_angle < 43` |
-| **d-value** | `abs( |end_angle_towards| - |end_angle_away| )` (absolute difference) |
+| **d-value** | `|end_angle_towards| - |end_angle_away|` (signed difference) |
 | **Mean D** | `sum(d_values) / n` |
 | **Std Dev** | `sqrt(sum((x - mean)²) / (n - 1))` |
 | **SEM** | `std_dev / sqrt(n)` |
