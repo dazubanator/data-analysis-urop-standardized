@@ -1,9 +1,4 @@
 user_number,face_id,tubeTypeIndex,pair_type,d
-2,ID015,0,FaceRight,0
-2,ID015,1,FaceLeft,4
-2,ID015,2,FaceLeft,2
-2,ID015,2,FaceRight,7
-2,ID015,3,FaceRight,13
 2,ID017,2,FaceLeft,-1
 2,ID017,2,FaceRight,5
 2,ID017,1,FaceLeft,-6
@@ -12,6 +7,13 @@ user_number,face_id,tubeTypeIndex,pair_type,d
 2,ID017,0,FaceRight,2
 2,ID017,3,FaceLeft,0
 2,ID017,3,FaceRight,-7
+2,ID015,2,FaceLeft,2
+2,ID015,2,FaceRight,7
+2,ID015,0,FaceLeft,-1
+2,ID015,0,FaceRight,0
+2,ID015,3,FaceRight,13
+2,ID015,1,FaceLeft,4
+2,ID015,1,FaceRight,-3
 3,ID015,3,FaceLeft,2
 3,ID015,3,FaceRight,1
 3,ID015,2,FaceLeft,1
