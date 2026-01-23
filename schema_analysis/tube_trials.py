@@ -156,8 +156,9 @@ class TubeTrials:
                 t_stat, p_val = stats.ttest_1samp(face_data, 0)
                 stats_results.append({
                     'face_id': face_id,
-                    'mean_D': face_data.mean(),
-                    'std_D': face_data.std(),
+                    'mean': face_data.mean(),
+                    'std': face_data.std(),
+                    'sem': face_data.sem(),
                     'n_subjects': len(face_data),
                     't_stat': t_stat,
                     'p_value': p_val
@@ -165,8 +166,9 @@ class TubeTrials:
             else:
                  stats_results.append({
                     'face_id': face_id,
-                    'mean_D': face_data.mean() if len(face_data) > 0 else np.nan,
-                    'std_D': np.nan,
+                    'mean': face_data.mean() if len(face_data) > 0 else np.nan,
+                    'std': np.nan,
+                    'sem': np.nan,
                     'n_subjects': len(face_data),
                     't_stat': np.nan,
                     'p_value': np.nan
