@@ -78,7 +78,7 @@ def balance_trials(df):
                 if len(towards_left) == 1 and len(away_left) == 1:
                     t_row, a_row = towards_left.iloc[0], away_left.iloc[0]
                     if t_row['angle_valid'] and a_row['angle_valid']:
-                        d_val = abs(t_row['end_angle']) - abs(a_row['end_angle'])
+                        d_val = abs(abs(t_row['end_angle']) - abs(a_row['end_angle']))
                         valid_d_values.append({
                             'user_number': user_id,
                             'face_id': face_id,
@@ -95,7 +95,7 @@ def balance_trials(df):
                 if len(towards_right) == 1 and len(away_right) == 1:
                     t_row, a_row = towards_right.iloc[0], away_right.iloc[0]
                     if t_row['angle_valid'] and a_row['angle_valid']:
-                        d_val = abs(t_row['end_angle']) - abs(a_row['end_angle'])
+                        d_val = abs(abs(t_row['end_angle']) - abs(a_row['end_angle']))
                         valid_d_values.append({
                             'user_number': user_id,
                             'face_id': face_id,
