@@ -37,20 +37,45 @@ def main():
     stats = clean_trials.calc_stats()
     results = clean_trials.calc_d_values()
     
-    # Expected values per Face ID (from README.md guide)
+    # Expected values per Face ID (from user's manual calculations)
     expected_stats = {
-        'ID015': {'mean': -0.250, 't_stat': -0.397, 'p_value': 0.718},
-        'ID017': {'mean': 1.667, 't_stat': 0.898, 'p_value': 0.464},
-        'ID030': {'mean': -3.000, 't_stat': -1.732, 'p_value': 0.225}
+        'ID015': {
+            'mean': 1.25,
+            'std': 0.5,
+            'sem': 0.25,
+            't_stat': 5.0,
+            'p_value': 0.015
+        },
+        'ID017': {
+            'mean': 2.3333, # 2.333 repeating
+            'std': 2.31,
+            'sem': 1.334,
+            't_stat': 1.75,
+            'p_value': 0.20 # > 0.20
+        },
+        'ID030': {
+            'mean': 3.0,
+            'std': 3.0,
+            'sem': 1.732,
+            't_stat': 1.732,
+            'p_value': 0.20 # > 0.20
+        }
     }
     
-    # Check D-values (negatives allowed in signed logic)
-    print("✓ D-values checked (Signed values allowed).")
+    # Check D-values (should be positive)
+    negative_d = results[results['d'] < 0]
+    if not negative_d.empty:
+        print(f"✗ FAILED: Found {len(negative_d)} negative D-values! (Check processing.py logic)")
+    else:
+        print("✓ D-values are all positive.")
 
     all_passed = True
+    
+    # Verify each face ID
     for face_id, expected in expected_stats.items():
         print(f"\n--- Checking {face_id} ---")
         face_stats = stats[stats['face_id'] == face_id]
+        
         if face_stats.empty:
             print(f"✗ FAILED: No statistics found for {face_id}")
             all_passed = False
@@ -58,6 +83,7 @@ def main():
             
         actual = face_stats.iloc[0]
         
+        # Helper for approximate comparison
         def check(name, act, exp, tolerance=0.01):
             match = abs(act - exp) < tolerance
             status = "✓" if match else "✗"
@@ -65,17 +91,29 @@ def main():
             return match
 
         m_match = check("Mean", actual['mean'], expected['mean'])
+        s_match = check("Std", actual['std'], expected['std'])
+        se_match = check("SEM", actual['sem'], expected['sem'])
         t_match = check("T-Stat", actual['t_stat'], expected['t_stat'], tolerance=0.1)
-        p_match = check("P-Value", actual['p_value'], expected['p_value'], tolerance=0.1)
+        
+        # P-value check (since user specified "> 0.20" for some)
+        if expected['p_value'] == 0.20:
+            p_match = actual['p_value'] > 0.20 or abs(actual['p_value'] - 0.20) < 0.05
+            status = "✓" if p_match else "✗"
+            print(f"{status} P-Value: Expected > 0.20, Actual {actual['p_value']:.3f}")
+        else:
+            p_match = check("P-Value", actual['p_value'], expected['p_value'], tolerance=0.01)
             
-        if not (m_match and t_match and p_match):
+        if not (m_match and s_match and se_match and t_match and p_match):
             all_passed = False
-            
+
+    print("\n" + "=" * 70)
     if all_passed:
-        print("\n✓✓✓ ALL VERIFICATIONS PASSED! ✓✓✓")
+        print("✓✓✓ ALL PER-FACE VERIFICATIONS PASSED! ✓✓✓")
+        print("The standardized analysis matches manual calculations.")
         sys.exit(0)
     else:
-        print("\n✗✗✗ VERIFICATION FAILED! ✗✗✗")
+        print("✗✗✗ VERIFICATION FAILED! ✗✗✗")
+        print("Discrepancies found in per-face statistics.")
         sys.exit(1)
 
 if __name__ == "__main__":

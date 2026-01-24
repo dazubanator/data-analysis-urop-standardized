@@ -39,7 +39,7 @@ Here is the "real life math" for calculating the statistics for each Face ID gro
 *Note: End angles are `Raw Angle * -1` (if left) or `Raw Angle * 1` (if right).*
 *Note: We no longer take the outer absolute value. This allows us to see if the bias is Towards (+) or Away (-).*
 
-#### Face ID015 (4 Subjects)
+**Face ID015 (4 Subjects)**
 
 * **User 284**: Towards=11, Away=-13. `D = |11| - |-13|` = `11 - 13` = **-2**
 * **User 200**: Towards=-10, Away=9. `D = |-10| - |9|` = `10 - 9` = **1**
@@ -47,14 +47,14 @@ Here is the "real life math" for calculating the statistics for each Face ID gro
 * **User 287**: Towards=-25, Away=24. `D = |-25| - |24|` = `25 - 24` = **1**
 * **Dataset for ID015**: `[-2, 1, -1, 1]`
 
-#### Face ID017 (3 Subjects)
+**Face ID017 (3 Subjects)**
 
 * **User 143**: Towards=25, Away=-26. `D = |25| - |-26|` = `25 - 26` = **-1**
 * **User 87**: Towards=-19, Away=14. `D = |-19| - |14|` = `19 - 14` = **5**
 * **User 39**: Towards=15, Away=-14. `D = |15| - |-14|` = `15 - 14` = **1**
 * **Dataset for ID017**: `[-1, 5, 1]`
 
-#### Face ID030 (3 Subjects)
+**Face ID030 (3 Subjects)**
 
 * **User 248**: Towards=15, Away=-21. `D = |15| - |-21|` = `15 - 21` = **-6**
 * **User 269**: Towards=17, Away=-17. `D = |17| - |-17|` = `17 - 17` = **0**
@@ -70,19 +70,19 @@ Here is the "real life math" for calculating the statistics for each Face ID gro
 1. **Count (N)**: 4
 2. **Sum**: -2 + 1 - 1 + 1 = **-1**
 3. **Mean**: Sum / N = -1 / 4 = **-0.25**
-4. **Standard Deviation (s)**: **~1.258**
-5. **SEM**: **0.629**
-6. **T-statistic**: -0.25 / 0.629 = **-0.397**
-7. **P-value**: **0.718**
+4. **Standard Deviation (s)**: **1.500**
+5. **SEM**: **0.750**
+6. **T-statistic**: -0.25 / 0.75 = **-0.333**
+7. **P-value**: **0.761**
 
 #### **Face ID017** (`[-1, 5, 1]`)
 
 1. **Count (N)**: 3
 2. **Mean**: (-1 + 5 + 1) / 3 = 5 / 3 ≈ **1.667**
-3. **Std Dev**: **3.215**
-4. **SEM**: **1.856**
-5. **T-statistic**: **0.898**
-6. **P-value**: **0.464**
+3. **Std Dev**: **3.055**
+4. **SEM**: **1.764**
+5. **T-statistic**: **0.945**
+6. **P-value**: **0.444**
 
 #### **Face ID030** (`[-6, 0, -3]`)
 
@@ -96,8 +96,6 @@ Here is the "real life math" for calculating the statistics for each Face ID gro
 ---
 
 ### Global Statistics Check
-
-#### Summary Table
 
 *Verified by script automatically*
 
@@ -124,14 +122,14 @@ The `run_verification.py` script automatically verifies these exact values again
 ## Quick Reference: Key Formulas
 
 | Step | Formula |
-| :--- | :--- |
+|------|---------|
 | **End Angle** | `raw_angle × (-1)` if left, `raw_angle × (1)` if right |
 | **Angle Valid** | `3 < end_angle < 43` |
 | **d-value** | `|end_angle_towards| - |end_angle_away|` (signed difference) |
 | **Mean D** | `sum(d_values) / n` |
 | **Std Dev** | `sqrt(sum((x - mean)²) / (n - 1))` |
 | **SEM** | `std_dev / sqrt(n)` |
-| **t-statistic** | `(mean - 0) / SEM` |
+| **t-statistic** | `(mean - 0) / SEM` (The `0` is the Null Hypothesis: assuming no difference) |
 | **P-value** | Look up `t` value in T-Distribution Table with `df = n - 1` |
 
 ### How to Calculate SEM (Standard Error of the Mean)
