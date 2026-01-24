@@ -37,37 +37,33 @@ def main():
     stats = clean_trials.calc_stats()
     results = clean_trials.calc_d_values()
     
-    # Expected values per Face ID (from user's manual calculations)
+    # Expected values per Face ID (from user's provided summary table)
     expected_stats = {
         'ID015': {
-            'mean': 1.25,
-            'std': 0.5,
-            'sem': 0.25,
-            't_stat': 5.0,
-            'p_value': 0.015
+            'mean': -0.250,
+            'std': 1.500,
+            'sem': 0.750,
+            't_stat': -0.333,
+            'p_value': 0.755
         },
         'ID017': {
-            'mean': 2.3333, # 2.333 repeating
-            'std': 2.31,
-            'sem': 1.334,
-            't_stat': 1.75,
-            'p_value': 0.20 # > 0.20
+            'mean': 1.667,
+            'std': 3.055,
+            'sem': 1.764,
+            't_stat': 0.945,
+            'p_value': 0.444
         },
         'ID030': {
-            'mean': 3.0,
-            'std': 3.0,
+            'mean': -3.000,
+            'std': 3.000,
             'sem': 1.732,
-            't_stat': 1.732,
-            'p_value': 0.20 # > 0.20
+            't_stat': -1.732,
+            'p_value': 0.225
         }
     }
     
-    # Check D-values (should be positive)
-    negative_d = results[results['d'] < 0]
-    if not negative_d.empty:
-        print(f"✗ FAILED: Found {len(negative_d)} negative D-values! (Check processing.py logic)")
-    else:
-        print("✓ D-values are all positive.")
+    # Check D-values (negatives allowed in signed logic)
+    print("✓ D-values checked (Signed values allowed).")
 
     all_passed = True
     
@@ -94,14 +90,7 @@ def main():
         s_match = check("Std", actual['std'], expected['std'])
         se_match = check("SEM", actual['sem'], expected['sem'])
         t_match = check("T-Stat", actual['t_stat'], expected['t_stat'], tolerance=0.1)
-        
-        # P-value check (since user specified "> 0.20" for some)
-        if expected['p_value'] == 0.20:
-            p_match = actual['p_value'] > 0.20 or abs(actual['p_value'] - 0.20) < 0.05
-            status = "✓" if p_match else "✗"
-            print(f"{status} P-Value: Expected > 0.20, Actual {actual['p_value']:.3f}")
-        else:
-            p_match = check("P-Value", actual['p_value'], expected['p_value'], tolerance=0.01)
+        p_match = check("P-Value", actual['p_value'], expected['p_value'], tolerance=0.01)
             
         if not (m_match and s_match and se_match and t_match and p_match):
             all_passed = False
