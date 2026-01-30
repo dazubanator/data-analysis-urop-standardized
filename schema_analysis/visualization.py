@@ -144,8 +144,8 @@ def plot_results(results, stats_df):
     plt.tight_layout()
     plt.show()
 
-    # --- 4. Per-Face Distributions (Zoomed View) ---
-    print("\n--- Generating Zoomed View (Focus on Null and Mean) ---")
+    # --- 4. Per-Face Distributions (Zoomed View - Dynamic) ---
+    print("\n--- Generating Dynamic Zoomed View (Focus on Null and Mean) ---")
     fig2 = plt.figure(figsize=(n_cols * 5, n_rows * 4))
     for i, face_id in enumerate(unique_faces):
         ax = fig2.add_subplot(n_rows, n_cols, i + 1)
@@ -173,10 +173,44 @@ def plot_results(results, stats_df):
         # Standardize Zoom Scale
         ax.set_xlim(zoom_x_min, zoom_x_max)
         
-        ax.set_title(f"ZOOM: Face {face_id}", fontweight='bold')
+        ax.set_title(f"DYNAMIC ZOOM: Face {face_id}", fontweight='bold')
         ax.set_xlabel('D-value (degrees)')
         ax.set_ylabel('Frequency (D-values)')
         
+    plt.tight_layout()
+    plt.show()
+
+    # --- 5. Per-Face Distributions (Fixed Zoom -15 to 15) ---
+    print("\n--- Generating Fixed Zoom View (-15 to 15) ---")
+    fig_fixed = plt.figure(figsize=(n_cols * 5, n_rows * 4))
+    for i, face_id in enumerate(unique_faces):
+        ax = fig_fixed.add_subplot(n_rows, n_cols, i + 1)
+        face_data = results[results['face_id'] == face_id]['d']
+        face_stats = stats_df[stats_df['face_id'] == face_id].iloc[0]
+        
+        # Plot Histogram
+        sns.histplot(face_data, kde=True, ax=ax, color='skyblue', alpha=0.4, binwidth=bin_width)
+        
+        # Standardize Axes
+        ax.set_ylim(0, y_max_global)
+        ax.set_xlim(-15, 15)
+        
+        # Lines
+        ax.axvline(0, color='grey', linestyle='--', linewidth=2, label='Null')
+        ax.axvline(face_stats['mean'], color='red', linestyle='-', linewidth=2, label=f"Mean")
+        
+        # Calculate threshold
+        df = face_stats['n_subjects'] - 1
+        if df > 0:
+            t_crit = sp_stats.t.ppf(0.975, df)
+            threshold = t_crit * face_stats['sem']
+            ax.axvline(threshold, color='green', linestyle=':', linewidth=1.5, label='Threshold')
+            if face_stats['mean'] < 0: ax.axvline(-threshold, color='green', linestyle=':')
+        
+        ax.set_title(f"FIXED ZOOM (-15, 15): Face {face_id}", fontweight='bold')
+        ax.set_xlabel('D-value (degrees)')
+        ax.set_ylabel('Frequency (D-values)')
+
     plt.tight_layout()
     plt.show()
 
