@@ -55,6 +55,7 @@ def plot_results(results, stats_df):
         title += f"p={face_stats['p_value']:.4f} {'*' if face_stats['p_value'] < 0.05 else '(ns)'}"
         ax.set_title(title, fontweight='bold')
         ax.set_xlabel('D-value (degrees)')
+        ax.set_ylabel('Frequency (Count)')
         if i == 0: ax.legend(fontsize='small')
         
     plt.tight_layout()
@@ -91,6 +92,7 @@ def plot_results(results, stats_df):
         
         ax.set_title(f"ZOOM: Face {face_id}", fontweight='bold')
         ax.set_xlabel('D-value (degrees)')
+        ax.set_ylabel('Frequency (Count)')
         
     plt.tight_layout()
     plt.show()

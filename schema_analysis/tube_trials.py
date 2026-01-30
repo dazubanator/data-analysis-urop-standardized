@@ -39,23 +39,27 @@ class TubeTrials:
         pct_valid = (n_valid / n_total * 100) if n_total > 0 else 0
         print(f"Marked angles: {n_valid}/{n_total} valid ({pct_valid:.1f}%), {n_total - n_valid} invalid ({100 - pct_valid:.1f}%)")
         
-    def mark_bad_subjects(self, max_invalid_trials=2):
+    def mark_valid_subjects(self, max_invalid_trials=2):
         """
-        Marks subjects to exclude based on invalid trials.
-        Adds column: 'is_excluded_subject' (bool)
+        Marks subjects as valid/invalid based on invalid trials.
+        Adds column: 'subject_valid' (bool)
         """
         if 'angle_valid' not in self.df.columns:
             raise ValueError("Run mark_valid_angles() first.")
             
         bad_subjects = processing.identify_bad_subjects(self.df, max_invalid_trials)
-        self.df['is_excluded_subject'] = self.df['user_number'].isin(bad_subjects)
+        self.df['subject_valid'] = ~self.df['user_number'].isin(bad_subjects)
+        
         n_excluded_subjects = len(bad_subjects)
         n_total_subjects = self.df['user_number'].nunique()
-        pct_excluded = (n_excluded_subjects / n_total_subjects * 100) if n_total_subjects > 0 else 0
-        n_excluded_trials = self.df['is_excluded_subject'].sum()
+        pct_valid = ((n_total_subjects - n_excluded_subjects) / n_total_subjects * 100) if n_total_subjects > 0 else 0
+        
+        n_valid_trials = self.df['subject_valid'].sum()
         n_total_trials = len(self.df)
-        pct_excluded_trials = (n_excluded_trials / n_total_trials * 100) if n_total_trials > 0 else 0
-        print(f"Marked subjects: {n_excluded_subjects}/{n_total_subjects} excluded ({pct_excluded:.1f}%), affecting {n_excluded_trials}/{n_total_trials} trials ({pct_excluded_trials:.1f}%)")
+        pct_valid_trials = (n_valid_trials / n_total_trials * 100) if n_total_trials > 0 else 0
+        
+        print(f"Marked subjects: {n_total_subjects - n_excluded_subjects}/{n_total_subjects} valid ({pct_valid:.1f}%)")
+        print(f"Trial validity: {n_valid_trials}/{n_total_trials} trials from valid subjects ({pct_valid_trials:.1f}%)")
         
     def select(self, valid_only=False, query=None):
         """
@@ -70,8 +74,8 @@ class TubeTrials:
         if valid_only:
             if 'angle_valid' in new_df.columns:
                 new_df = new_df[new_df['angle_valid']]
-            if 'is_excluded_subject' in new_df.columns:
-                new_df = new_df[~new_df['is_excluded_subject']]
+            if 'subject_valid' in new_df.columns:
+                new_df = new_df[new_df['subject_valid']]
                 
         if query:
             new_df = new_df.query(query)
@@ -137,6 +141,33 @@ class TubeTrials:
         subject_D.rename(columns={'d': 'D'}, inplace=True)
         return subject_D
 
+    def get_validity_stats(self):
+        """
+        Calculates and prints validity statistics.
+        Requests:
+         - % of correct (valid) trials before balancing
+        """
+        if 'angle_valid' not in self.df.columns or 'subject_valid' not in self.df.columns:
+             print("Validation columns missing. Run mark_valid_angles() and mark_valid_subjects() first.")
+             return
+             
+        n_total = len(self.df)
+        if n_total == 0:
+            print("No data.")
+            return
+
+        n_angle_valid = self.df['angle_valid'].sum()
+        n_subject_valid = self.df['subject_valid'].sum()
+        
+        # Valid angle AND Valid subject
+        n_fully_valid = len(self.df[self.df['angle_valid'] & self.df['subject_valid']])
+        
+        print("\n--- Pre-Balancing Validity Stats ---")
+        print(f"Total Trials: {n_total}")
+        print(f"Angle Valid: {n_angle_valid} ({n_angle_valid/n_total*100:.1f}%)")
+        print(f"Subject Valid (Trials): {n_subject_valid} ({n_subject_valid/n_total*100:.1f}%)")
+        print(f"Fully Valid (Angle & Subject): {n_fully_valid} ({n_fully_valid/n_total*100:.1f}%)")
+        
     def calc_stats(self):
         """
         Calculates statistics for D values grouped by FaceID.
