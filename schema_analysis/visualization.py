@@ -18,7 +18,37 @@ def plot_results(results, stats_df):
     # Set styling
     sns.set_theme(style="whitegrid", palette="muted")
     
-    # --- 1. Per-Face Distributions (Overview) ---
+    # --- 1. Calculate Global Limits for Standardization ---
+    
+    # Global X limits
+    all_d = results['d']
+    min_d, max_d = all_d.min(), all_d.max()
+    # Add 10% padding
+    x_range = max_d - min_d
+    x_min_global = min_d - (x_range * 0.1)
+    x_max_global = max_d + (x_range * 0.1)
+    
+    # Global Y limits (Max Frequency)
+    # We need to compute histograms to find the max frequency peak across all faces
+    max_freq_global = 0
+    bin_width = 2 # Fixed bin width in degrees
+    
+    for face_id in unique_faces:
+        face_data = results[results['face_id'] == face_id]['d']
+        if len(face_data) > 0:
+            # Calculate histogram bins using numpy to find max counts
+            # Create bins covering the range
+            bins = np.arange(np.floor(face_data.min()), np.ceil(face_data.max()) + bin_width, bin_width)
+            counts, _ = np.histogram(face_data, bins=bins)
+            current_max = counts.max() if len(counts) > 0 else 0
+            if current_max > max_freq_global:
+                max_freq_global = current_max
+                
+    y_max_global = max_freq_global * 1.1 # Add 10% padding
+    
+    print(f"Global Standardization: X range [{x_min_global:.1f}, {x_max_global:.1f}], Y max {y_max_global:.1f}, Bin Width {bin_width}")
+
+    # --- 2. Per-Face Distributions (Overview) ---
     print("\n--- Generating Overview Distributions ---")
     n_cols = min(3, n_faces)
     n_rows = (n_faces + n_cols - 1) // n_cols
@@ -39,7 +69,15 @@ def plot_results(results, stats_df):
             threshold = np.nan
 
         # Plot Histogram
-        sns.histplot(face_data, kde=True, ax=ax, color='skyblue', alpha=0.6)
+        # Use fixed binwidth to ensure bars represent same "amount" of degrees across plots
+        sns.histplot(face_data, kde=True, ax=ax, color='skyblue', alpha=0.6, binwidth=bin_width)
+        
+        # Standardize Axes
+        ax.set_xlim(x_min_global, x_max_global)
+        ax.set_ylim(0, y_max_global)
+        
+        # Add N to title for clarity on why some histograms might look small total-wise
+        total_count = len(face_data)
         
         # Reference lines
         ax.axvline(0, color='grey', linestyle='--', linewidth=2, label='Null (0°)')
@@ -50,8 +88,9 @@ def plot_results(results, stats_df):
             if face_stats['mean'] < 0: # If mean is negative, show negative threshold too
                  ax.axvline(-threshold, color='green', linestyle=':', linewidth=1.5)
         
+        
         # Formatting
-        title = f"Face {face_id} (n={int(face_stats['n_subjects'])})\n"
+        title = f"Face {face_id} (n={total_count})\n"
         title += f"p={face_stats['p_value']:.4f} {'*' if face_stats['p_value'] < 0.05 else '(ns)'}"
         ax.set_title(title, fontweight='bold')
         ax.set_xlabel('D-value (degrees)')
@@ -70,7 +109,10 @@ def plot_results(results, stats_df):
         face_stats = stats_df[stats_df['face_id'] == face_id].iloc[0]
         
         # Plot Histogram (Zoomed)
-        sns.histplot(face_data, kde=True, ax=ax, color='skyblue', alpha=0.4)
+        sns.histplot(face_data, kde=True, ax=ax, color='skyblue', alpha=0.4, binwidth=bin_width)
+        
+        # Standardize Axes (Y only, X is zoomed)
+        ax.set_ylim(0, y_max_global)
         
         # Lines
         ax.axvline(0, color='grey', linestyle='--', linewidth=2, label='Null')
