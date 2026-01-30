@@ -48,7 +48,51 @@ def plot_results(results, stats_df):
     
     print(f"Global Standardization: X range [{x_min_global:.1f}, {x_max_global:.1f}], Y max {y_max_global:.1f}, Bin Width {bin_width}")
 
-    # --- 2. Per-Face Distributions (Overview) ---
+    # --- 2. Calculate Global Zoom Limits ---
+    # We want a zoom window that fits "Null (0)" and "Mean" + padding for ALL faces.
+    # Ideally, we find the min/max of these "interest points" across all faces and add padding.
+    
+    zoom_min_candidates = []
+    zoom_max_candidates = []
+    
+    for face_id in unique_faces:
+        face_stats = stats_df[stats_df['face_id'] == face_id].iloc[0]
+        mean = face_stats['mean']
+        
+        # Calculate threshold for reference
+        df = face_stats['n_subjects'] - 1
+        threshold = np.nan
+        if df > 0:
+            t_crit = sp_stats.t.ppf(0.975, df)
+            threshold = t_crit * face_stats['sem']
+            
+        # Interest points for this face: 0, Mean, +/- Threshold
+        points = [0, mean]
+        if not np.isnan(threshold):
+            points.append(mean + threshold) # Upper bound of CI
+            points.append(mean - threshold) # Lower bound of CI
+            # Also include the significance threshold lines themselves if relevant
+            points.append(threshold)
+            points.append(-threshold)
+            
+        zoom_min_candidates.append(min(points))
+        zoom_max_candidates.append(max(points))
+        
+    # Find global min/max for zoom
+    # If no data, default to [-1, 1]
+    z_min_raw = min(zoom_min_candidates) if zoom_min_candidates else -1
+    z_max_raw = max(zoom_max_candidates) if zoom_max_candidates else 1
+    
+    # Add 20% padding to the total range
+    z_range = z_max_raw - z_min_raw
+    if z_range == 0: z_range = 2 # Fallback if everything is exactly 0
+    
+    zoom_x_min = z_min_raw - (z_range * 0.1)
+    zoom_x_max = z_max_raw + (z_range * 0.1)
+    
+    print(f"Global Zoom Window: [{zoom_x_min:.2f}, {zoom_x_max:.2f}]")
+
+    # --- 3. Per-Face Distributions (Overview) ---
     print("\n--- Generating Overview Distributions ---")
     n_cols = min(3, n_faces)
     n_rows = (n_faces + n_cols - 1) // n_cols
@@ -100,7 +144,7 @@ def plot_results(results, stats_df):
     plt.tight_layout()
     plt.show()
 
-    # --- 2. Per-Face Distributions (Zoomed View) ---
+    # --- 4. Per-Face Distributions (Zoomed View) ---
     print("\n--- Generating Zoomed View (Focus on Null and Mean) ---")
     fig2 = plt.figure(figsize=(n_cols * 5, n_rows * 4))
     for i, face_id in enumerate(unique_faces):
@@ -126,11 +170,8 @@ def plot_results(results, stats_df):
             ax.axvline(threshold, color='green', linestyle=':', linewidth=1.5, label='Threshold')
             if face_stats['mean'] < 0: ax.axvline(-threshold, color='green', linestyle=':')
 
-        # Zoom in: Set x-limits around [0, Mean] with some padding
-        padding = max(abs(face_stats['mean']), threshold if not np.isnan(threshold) else 0) * 0.5
-        x_min = min(0, face_stats['mean'], -threshold if not np.isnan(threshold) else 0) - padding
-        x_max = max(0, face_stats['mean'], threshold if not np.isnan(threshold) else 0) + padding
-        ax.set_xlim(x_min, x_max)
+        # Standardize Zoom Scale
+        ax.set_xlim(zoom_x_min, zoom_x_max)
         
         ax.set_title(f"ZOOM: Face {face_id}", fontweight='bold')
         ax.set_xlabel('D-value (degrees)')
@@ -139,7 +180,7 @@ def plot_results(results, stats_df):
     plt.tight_layout()
     plt.show()
 
-    # --- 3. Summary Bar Charts ---
+    # --- 5. Summary Bar Charts ---
     print("\n--- Generating Summary Stats ---")
     fig3, axes = plt.subplots(1, 2, figsize=(16, 6))
     
